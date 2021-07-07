@@ -1,96 +1,117 @@
 # Multi-dimensional Arrays
 
-Julia, like most technical computing languages, provides a first-class array implementation. Most
-technical computing languages pay a lot of attention to their array implementation at the expense
-of other containers. Julia does not treat arrays in any special way. The array library is implemented
-almost completely in Julia itself, and derives its performance from the compiler, just like any
-other code written in Julia. As such, it's also possible to define custom array types by inheriting
-from `AbstractArray`. See the [manual section on the AbstractArray interface](@ref man-interface-array) for more details
-on implementing a custom array type.
-
-An array is a collection of objects stored in a multi-dimensional grid. In the most general case,
-an array may contain objects of type `Any`. For most computational purposes, arrays should contain
-objects of a more specific type, such as `Float64` or `Int32`.
-
-In general, unlike many other technical computing languages, Julia does not expect programs to
-be written in a vectorized style for performance. Julia's compiler uses type inference and generates
-optimized code for scalar array indexing, allowing programs to be written in a style that is convenient
-and readable, without sacrificing performance, and using less memory at times.
-
-In Julia, all arguments to functions are [passed by
-sharing](https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_sharing)
-(i.e. by pointers). Some technical computing languages pass arrays by value, and
-while this prevents accidental modification by callees of a value in the caller,
-it makes avoiding unwanted copying of arrays difficult. By convention, a
-function name ending with a `!` indicates that it will mutate or destroy the
-value of one or more of its arguments (compare, for example, `sort` and `sort!`).
-Callees must make explicit copies to ensure that they don't modify inputs that
-they don't intend to change. Many non- mutating functions are implemented by
-calling a function of the same name with an added `!` at the end on an explicit
-copy of the input, and returning that copy.
+زبان جولیا همانند اکثر زبان‌های فنی محاسبه کننده، به صورت عالی لیست را پیاده سازی کرده است. اکثر زبان‌های فنی محاسبه کننده توجه ویژه‌ای به پیاده سازی لیست در مقایسه با دیگر ساختمان داده‌ها دارند. کتابخانه لیست در جولیا کاملا توسط خود زبان جولیا پیاده‌سازی شده است و همانند باقی کد‌هایی که توسط این زبان نوشته شده‌اند، عملکرد سریع آن از طریق کامپایلر مهیا شده است. همینطور میتوان لیست‌هایی از انواع سفارشی با ارث بری از `AbstractArray` تعریف کرد. برای جزئیات بیشتر در مورد پیاده سازی لیست با نوع سفارشی،[manual section on the AbstractArray interface](@ref man-interface-array) را ببینید.
+لیست مجموعه‌ای از اشیاء ذخیره شده به صورت یک شبکه چند بعدی است. به صورت کلی‌تر یک لیست شامل اشیائی از نوع  `Any` است. برای اکثر اهداف محاسباتی، لیست‌ها باید اشیائی از انواع خاص‌تری مانند`Float64` یا `Int32` را نگهداری کنند.
+به صورت کلی، برخلاف زبان‌های فنی محاسبه کننده دیگر، جولیا انتظار ندارد که برنامه حتما با vectorized style نوشته شود تا عملکرد بهینه‌ای داشته باشد. کامپایلر جولیا از استنتاج نوع استفاده میکند و کد بهینه‌ای برای indexing لیست تولید میکند که به برنامه‌ها این اجازه را می‌دهند که با style ای نوشته شوند که راحت و خوانا باشد. بدون اینکه از بهینگی عملکرد آن کاسته شود یا حافظه مموری کمتری استفاده کند.
+در جولیا تمام آرگومان‌های توابع به صورت [passed by sharing](https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_sharing) هستند(به عبارت دیگر با pointer).
+برخی از زبان‌های فنی محاسبه کننده از روش pass by value به لیست استفاده می‌کنند، بااینکه این روش مانع تغییرات ناخواسته و تصادفی در مقادیر لیست می‌شود، اما جلوگیری از کپی شدن ناخواسته لیست‌ها را سخت می‌کند.
+با قرارداد، تابعی که نامش با `!` به پایان برسد، اشاره میکند که مقدار یک یا بیشتری از آرگومان‌هایش را تغییر می‌د‌هد(یا حذف می‌کند).
+برای مثال میتوانید `sort` and `sort!` را مقایسه کنید. فراخوانی‌ها باید کپی‌های صریحی ایجاد کنند تا مطمان شویم مقادیر ورودی‌ای که قصد تغییرشان را نداریم، بدون تغییر باقی بمانند. تعدادی توابع non-mutating با اضافه شدن `!` در انتهای آن‌ها و فراخوانی روی کپی صریح از ورودی، پیاده سازی شده‌اند.
 
 ## Basic Functions
 
 | Function               | Description                                                                      |
+
 |:---------------------- |:-------------------------------------------------------------------------------- |
-| `eltype(A)`    | the type of the elements contained in `A`                                        |
-| `length(A)`    | the number of elements in `A`                                                    |
-| `ndims(A)`     | the number of dimensions of `A`                                                  |
-| `size(A)`      | a tuple containing the dimensions of `A`                                         |
-| `size(A,n)`    | the size of `A` along dimension `n`                                              |
-| `axes(A)`      | a tuple containing the valid indices of `A`                                      |
-| `axes(A,n)`    | a range expressing the valid indices along dimension `n`                         |
-| `eachindex(A)` | an efficient iterator for visiting each position in `A`                          |
-| `stride(A,k)`  | the stride (linear index distance between adjacent elements) along dimension `k` |
-| `strides(A)`   | a tuple of the strides in each dimension                                         |
+
+| `eltype(A)`    | نوع المنت‌هایی که در  `A`   هستند                                     |
+
+| `length(A)`    | تعداد المنت‌هایی که در `A`  هستند                                                  |
+
+| `ndims(A)`     | تعداد بعد‌های `A`                                                  |
+
+| `size(A)`      | یک تاپل حاوی بعد‌های  `A`                                         |
+
+| `size(A,n)`    | سایز `A` در راستای بعد `n`                                              |
+
+| `axes(A)`      | یک تاپل شامل index های مختلف `A`                                      |
+
+| `axes(A,n)`    | محدوده شامل index های مختلف در راستای بعد `n`                         |
+
+| `eachindex(A)` | یک iterator بهینه برای دیدن هر جایگاه در `A`                          |
+
+| `stride(A,k)`  | گام (فاصله خطی indexها بین المنت‌های مجاور) در راستای بعد `k` |
+
+| `strides(A)`   | تاپلی از گام ها در جهت بعد‌های مختلف                                         |
+
 
 ## Construction and Initialization
 
-Many functions for constructing and initializing arrays are provided. In the following list of
-such functions, calls with a `dims...` argument can either take a single tuple of dimension sizes
-or a series of dimension sizes passed as a variable number of arguments. Most of these functions
-also accept a first input `T`, which is the element type of the array. If the type `T` is
-omitted it will default to `Float64`.
+تعدادی تابع برای ساختن و مقداردهی اولیه لیست‌ها فراهم شده است. در جدول زیر فراخوانی توابع با آرگومان `dims...` میتواند مقدار یک تاپل شامل سایز بعدها، یا یک سری از آن‌ها را اخذ کند. اغلب این توابع ورودی اول  `T` را نیز می‌پذیرند که در واقع نوع المنت‌های لیست است. اگر نوع `T` داده نشود، به صورت پیش فرض نوع `Float64` در نظر گرفته می‌شود.
+ | Function                           | Description                                                                                                                                                                                                                                  |
 
-| Function                           | Description                                                                                                                                                                                                                                  |
 |:---------------------------------- |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Array{T}(undef, dims...)`             | an uninitialized dense `Array`                                                                                                                                                                                                              |
-| `zeros(T, dims...)`                    | an `Array` of all zeros                                                                                                                                                                                                                      |
-| `ones(T, dims...)`                     | an `Array` of all ones                                                                                                                                                                                                                       |
-| `trues(dims...)`                       | a `BitArray` with all values `true`                                                                                                                                                                                                  |
-| `falses(dims...)`                      | a `BitArray` with all values `false`                                                                                                                                                                                                         |
-| `reshape(A, dims...)`                  | an array containing the same data as `A`, but with different dimensions                                                                                                                                                                      |
-| `copy(A)`                              | copy `A`                                                                                                                                                                                                                                     |
-| `deepcopy(A)`                          | copy `A`, recursively copying its elements                                                                                                                                                                                                   |
-| `similar(A, T, dims...)`               | an uninitialized array of the same type as `A` (dense, sparse, etc.), but with the specified element type and dimensions. The second and third arguments are both optional, defaulting to the element type and dimensions of `A` if omitted. |
-| `reinterpret(T, A)`                    | an array with the same binary data as `A`, but with element type `T`                                                                                                                                                                         |
-| `rand(T, dims...)`                     | an `Array` with random, iid [^1] and uniformly distributed values in the half-open interval ``[0, 1)``                                                                                                                                       |
-| `randn(T, dims...)`                    | an `Array` with random, iid and standard normally distributed values                                                                                                                                                                         |
-| `Matrix{T}(I, m, n)`                   | `m`-by-`n` identity matrix. Requires `using LinearAlgebra` for `I`.                                                                                                                                                                                                                   |
-| `range(start, stop=stop, length=n)`    | range of `n` linearly spaced elements from `start` to `stop`                                                                                                                                                                                 |
-| `fill!(A, x)`                          | fill the array `A` with the value `x`                                                                                                                                                                                                        |
-| `fill(x, dims...)`                     | an `Array` filled with the value `x`                                                                                                                                                                                                         |
+
+| `Array{T}(undef, dims...)`             | یک `Array`  متراکم مقدار دهی نشده|
+
+| `zeros(T, dims...)`                    | یک `Array` تماما صفر                                                                                                                                                                                                                      |
+
+| `ones(T, dims...)`                     | یک `Array` تماما یک                                                                                                                                                                                                                       |
+
+| `trues(dims...)`                       | یک `BitArray` با مقادیر تماما `true`                                                                                                                                                                                                  |
+
+| `falses(dims...)`                      | یک `BitArray` با مقادیر تماما `false`                                                                                                                                                                                                         |
+
+| `reshape(A, dims...)`                  | یک لیست شامل تمام المنت‌های  `A`, ولی با ابعادی متفاوت                                                                                                                                                                      |
+
+| `copy(A)`                              | کپی از `A`                                                                                                                                                                                                                                     |
+
+| `deepcopy(A)`                          | کپی `A`, کپی به صورت بازگشتی روی تمام المنت‌ها انجام میشود                                                                                                                                                                                                   |
+
+| `similar(A, T, dims...)`               | یک لیست مقدار دهی نشده هم نوع با`A` (متراکم، پراکنده و ...), ولی با نوع المنت و ابعاد مشخص شده آرگومان‌های دوم و سوم دلخواه هستند که اگر ذکر نشوند به صورت پیش فرض نوع المنت و ابعاد `A` در نظر گرفته میشوند.  |
+
+| `reinterpret(T, A)`                    | یک لیست شامل داده‌ دودویی مانند `A`, با نوع المنت `T`                                                                                                                                                                         |
+
+| `rand(T, dims...)`                     | یک `Array` با مقادیر رندم، iid [^1] و توزیع یکنواخت روی بازه نیمه باز``[0, 1)``                                                                                                                                       |
+
+| `randn(T, dims...)`                    | یک `Array` با مقادیر رندم، iid و توزیع نرمال استاندارد                                                                                                                                                                         |
+
+| `Matrix{T}(I, m, n)`                   | ماتریس `m`در`n` همانی. نیازمند `using LinearAlgebra` برای استفاده از `I`.                                                                                                                                                                                                                   |
+
+| `range(start, stop=stop, length=n)`    | رنج تشکیل شده از `n` المنت با فاصله‌های مساوی از  `start` تا `stop`                                                                                                                                                                                 |
+
+| `fill!(A, x)`                          | پر کردن `A` با مقادیر `x`                                                                                                                                                                                                        |
+
+| `fill(x, dims...)`                     | یک `Array` تشکیل شده از مقادیر `x`                                                                                                                                                                                                         |
 
 [^1]: *iid*, independently and identically distributed.
 
-To see the various ways we can pass dimensions to these functions, consider the following examples:
+
+
+
+برای اینکه ببنید چگونه میتوان ابعاد مختلف را به عنوان آرگومان به این توابع داد، به مثال‌های زیر توجه کنید:
+
 ```julia
+
 julia> zeros(Int8, 2, 3)
+
 2×3 Matrix{Int8}:
- 0  0  0
- 0  0  0
+
+0  0  0
+
+0  0  0
 
 julia> zeros(Int8, (2, 3))
+
 2×3 Matrix{Int8}:
- 0  0  0
- 0  0  0
+
+0  0  0
+
+0  0  0
 
 julia> zeros((2, 3))
+
 2×3 Matrix{Float64}:
- 0.0  0.0  0.0
- 0.0  0.0  0.0
+
+0.0  0.0  0.0
+
+0.0  0.0  0.0
+
 ```
-Here, `(2, 3)` is a `Tuple` and the first argument — the element type — is optional, defaulting to `Float64`.
+
+
+در اینجا، `(2, 3)` یک `Tuple` است و آرگومان اول (نوع المنت) غیر ضروری است و به صورت پیش فرض `Float64` قرار داده می‌شود.
+
 
 ## Array literals
 
